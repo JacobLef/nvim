@@ -66,3 +66,13 @@ autocmd("FileType", {
     vim.keymap.set("n", "q", "<cmd>close<cr>", { buffer = ev.buf, silent = true })
   end,
 })
+
+-- Use cindent instead of treesitter indent for C/C++
+autocmd("FileType", {
+  group = augroup("CIndent", { clear = true }),
+  pattern = { "c", "cpp" },
+  callback = function()
+    vim.bo.indentexpr = ""
+    vim.bo.cindent = true
+  end,
+})
