@@ -1,15 +1,20 @@
 return {
-  "Mofiqul/vscode.nvim",
+  "folke/tokyonight.nvim",
   lazy = false,
   priority = 1000,
   config = function()
-    local vscode = require("vscode")
-    vscode.setup({
+    require("tokyonight").setup({
+      style = "night",
       transparent = false,
-      italic_comments = true,
-      underline_links = true,
-      disable_nvimtree_bg = true,
+      styles = {
+        comments = { italic = true },
+      },
+      -- Your custom background, applied as part of the theme so it survives reloads
+      on_colors = function(colors)
+        colors.bg = "#15161e"
+        colors.bg_float = "#15161e"
+      end,
     })
-    vscode.load("dark")
+    vim.cmd.colorscheme("tokyonight")
   end,
 }

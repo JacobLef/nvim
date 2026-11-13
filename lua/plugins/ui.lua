@@ -26,7 +26,7 @@ return {
   },
   -- Color highlighter
   {
-    "NvChad/nvim-colorizer.lua",
+    "catgoose/nvim-colorizer.lua",
     event = { "BufReadPost", "BufNewFile" },
     opts = {},
   },
@@ -34,7 +34,12 @@ return {
   {
     "folke/which-key.nvim",
     event = "VeryLazy",
-    opts = {},
+    opts = {
+      spec = {
+        { "<leader>R", group = "Remote" },
+        { "<leader>t", group = "Terminal" },
+      },
+    },
   },
   -- Dashboard
   {

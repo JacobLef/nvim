@@ -1,17 +1,22 @@
 local autocmd = vim.api.nvim_create_autocmd
 local augroup = vim.api.nvim_create_augroup
+local is_remote = require("config.util").is_remote
 
 -- Highlight on yank
 autocmd("TextYankPost", {
   group = augroup("HighlightYank", { clear = true }),
-  callback = function() vim.highlight.on_yank({ timeout = 200 }) end,
+  callback = function() vim.hl.on_yank({ timeout = 200 }) end,
 })
 
--- Remove trailing whitespace on save
+-- Remove trailing whitespace on save (without moving the cursor or clobbering the search register)
 autocmd("BufWritePre", {
   group = augroup("TrimWhitespace", { clear = true }),
   pattern = "*",
-  command = "%s/\\s\\+$//e",
+  callback = function()
+    local view = vim.fn.winsaveview()
+    vim.cmd([[keeppatterns %s/\s\+$//e]])
+    vim.fn.winrestview(view)
+  end,
 })
 
 -- Restore cursor position
@@ -26,12 +31,17 @@ autocmd("BufReadPost", {
   end,
 })
 
--- Auto-save on focus lost
+-- Auto-save on focus lost / buffer leave (local files only: remote buffers
+-- would trigger an scp upload on every buffer switch, so save those with :w)
 autocmd({ "FocusLost", "BufLeave" }, {
   group = augroup("AutoSave", { clear = true }),
-  callback = function()
-    if vim.bo.modified and vim.bo.buftype == "" and vim.fn.expand("%") ~= "" then
-      vim.cmd("silent! write")
+  callback = function(ev)
+    if vim.bo[ev.buf].modified
+      and vim.bo[ev.buf].buftype == ""
+      and vim.api.nvim_buf_get_name(ev.buf) ~= ""
+      and not is_remote(ev.buf)
+    then
+      vim.api.nvim_buf_call(ev.buf, function() vim.cmd("silent! write") end)
     end
   end,
 })
@@ -60,7 +70,7 @@ autocmd("FileType", {
 -- Close some filetypes with q
 autocmd("FileType", {
   group = augroup("CloseWithQ", { clear = true }),
-  pattern = { "help", "man", "qf", "lspinfo", "checkhealth" },
+  pattern = { "help", "man", "qf", "checkhealth" },
   callback = function(ev)
     vim.bo[ev.buf].buflisted = false
     vim.keymap.set("n", "q", "<cmd>close<cr>", { buffer = ev.buf, silent = true })
@@ -71,8 +81,8 @@ autocmd("FileType", {
 autocmd("FileType", {
   group = augroup("CIndent", { clear = true }),
   pattern = { "c", "cpp" },
-  callback = function()
-    vim.bo.indentexpr = ""
-    vim.bo.cindent = true
+  callback = function(ev)
+    vim.bo[ev.buf].indentexpr = ""
+    vim.bo[ev.buf].cindent = true
   end,
 })

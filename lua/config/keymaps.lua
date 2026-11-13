@@ -56,7 +56,7 @@ map("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 map("n", "<leader>lw", "<cmd>set wrap!<cr>", { desc = "Toggle line wrap" })
 
 -- Run shell command in bottom split
-map("n", "<leader>r", function()
+map("n", "<leader>tr", function()
   local cmd = vim.fn.input("Run: ")
   if cmd ~= "" then
     vim.cmd("botright 15split | terminal " .. cmd)

@@ -6,17 +6,17 @@ return {
       signs = {
         add = { text = "▎" },
         change = { text = "▎" },
-        delete = { text = "" },
-        topdelete = { text = "" },
+        delete = { text = "▁" },
+        topdelete = { text = "▔" },
         changedelete = { text = "▎" },
       },
       on_attach = function(bufnr)
-        local gs = package.loaded.gitsigns
+        local gs = require("gitsigns")
         local map = function(mode, l, r, desc)
           vim.keymap.set(mode, l, r, { buffer = bufnr, desc = desc })
         end
-        map("n", "]h", gs.next_hunk, "Next hunk")
-        map("n", "[h", gs.prev_hunk, "Previous hunk")
+        map("n", "]h", function() gs.nav_hunk("next") end, "Next hunk")
+        map("n", "[h", function() gs.nav_hunk("prev") end, "Previous hunk")
         map("n", "<leader>hs", gs.stage_hunk, "Stage hunk")
         map("n", "<leader>hr", gs.reset_hunk, "Reset hunk")
         map("n", "<leader>hp", gs.preview_hunk, "Preview hunk")
